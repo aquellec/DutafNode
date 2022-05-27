@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <link href="/assets/styles.css" rel="stylesheet" type="text/css" />
+  <script src="/assets/jquery-3.6.0.min.js"></script>
+  <script src="/assets/vue3.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+  <!-- Load required Bootstrap and BootstrapVue CSS -->
+  <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
+  <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.css" />
+
+  <!-- Load polyfills to support older browsers -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es2015%2CIntersectionObserver"
+    crossorigin="anonymous"></script>
+
+  <!-- Load Vue followed by BootstrapVue -->
+  <script src="https://unpkg.com/vue@latest/dist/vue.min.js"></script>
+  <script src="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.js"></script>
+
+  <!-- Load the following for BootstrapVueIcons support -->
+  <script src="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue-icons.min.js"></script>
+</head>
+
+<body>
+  <div id="content">
+    <b-container class="m-auto mt-2">
+      <div>
+        <b-navbar class="d-flex justify-content-between">
+          <b-navbar-brand>Dutaf Node</b-navbar-brand>
+          <b-nav>
+            <b-nav-item href="/" active>Accueil</b-nav-item>
+            <b-nav-item href="/comics">BD</b-nav-item>
+            <b-nav-item href="/search">Rechercher</b-nav-item>
+            <b-nav-item href="/admin">Admin.</b-nav-item>
+          </b-nav>
+        </b-navbar>
+      </div>
+      <h1 class="text-center">Bienvenue sur le site DUTAF !</h1>
+      <p>Ce site est livré sur votre navigateur par Node.js !</p>
+    </b-container>
+  </div>
+  <script>
+    new Vue({
+      el: "#content",
+    });
+  </script>
+</body>
+
+</html>

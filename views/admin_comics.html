@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <link href="/assets/styles.css" rel="stylesheet" type="text/css" />
+  <script src="/assets/jquery-3.6.0.min.js"></script>
+  <script src="/assets/vue3.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+  <!-- Load required Bootstrap and BootstrapVue CSS -->
+  <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
+  <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.css" />
+
+  <!-- Load polyfills to support older browsers -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es2015%2CIntersectionObserver"
+    crossorigin="anonymous"></script>
+
+  <!-- Load Vue followed by BootstrapVue -->
+  <script src="https://unpkg.com/vue@latest/dist/vue.min.js"></script>
+  <script src="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.js"></script>
+
+  <!-- Load the following for BootstrapVueIcons support -->
+  <script src="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue-icons.min.js"></script>
+</head>
+
+<body>
+  <div id="content">
+    <b-container class="m-auto mt-2">
+      <div>
+        <b-navbar class="d-flex justify-content-between">
+          <b-navbar-brand>Dutaf Node</b-navbar-brand>
+          <b-nav>
+            <b-nav-item href="/">Back</b-nav-item>
+            <b-nav-item href="/admin/comics" active>Admin. BD</b-nav-item>
+            <b-nav-item href="/admin/authors">Admin. Auteurs</b-nav-item>
+            <b-nav-item href="/admin/editors">Admin. Editeurs</b-nav-item>
+          </b-nav>
+        </b-navbar>
+      </div>
+      <h2>Administration bd</h2>
+      <div id="status"></div>
+      <b-row>
+        <b-col class="d-flex my-1 gap-2" cols="3">
+          <label class="my-auto" for="title">Titre:</label>
+          <b-form-input type="text" name="title" id="title" v-model="newTitle" />
+        </b-col>
+      </b-row>
+      <b-row>
+        <b-col class="d-flex my-1 gap-2" cols="3">
+          <label class="my-auto" for="serie">Serie:</label>
+          <b-form-input type="text" name="serie" id="serie" v-model="newSerie" />
+        </b-col>
+      </b-row>
+      <b-row>
+        <b-col class="d-flex my-1 gap-2" cols="3">
+          <label class="my-auto" for="price">Prix:</label>
+          <b-form-input type="number" name="price" id="price" v-model="newPrice" />
+        </b-col>
+      </b-row>
+      <b-row>
+        <b-col class="d-flex my-1 gap-2" cols="3">
+          <label class="my-auto" for="isbn">ISBN:</label>
+          <b-form-input type="text" name="isbn" id="isbn" v-model="newISBN" />
+        </b-col>
+      </b-row>
+      <b-row>
+        <b-col class="d-flex my-1 gap-2" cols="3">
+          <label class="my-auto" for="author">Auteur:</label>
+          <select class="form-control" name="author" id="author" v-model="newAuthor">
+            <option v-for="a in authors" v-bind:value="a.auteur_id">
+              {{a.auteur_nom}}
+            </option>
+          </select>
+        </b-col>
+      </b-row>
+      <b-row>
+        <b-col class="d-flex my-1 gap-2" cols="3">
+          <label class="my-auto" for="editor">Editeur:</label>
+          <select class="form-control" name="editor" id="editor" v-model="newEditor">
+            <option v-for="e in editors" v-bind:value="e.editeur_id">
+              {{e.editeur_nom}}
+            </option>
+          </select>
+        </b-col>
+      </b-row>
+      <b-row>
+        <b-col class="d-flex my-1 gap-2" cols="3">
+          <b-button class="my-1" variant="primary" type="submit" @click="addComics">Ajouter une BD !</b-button>
+        </b-col>
+      </b-row>
+      <b-table-simple responsive>
+        <b-thead>
+          <b-tr>
+            <b-th>Titre</b-th>
+            <b-th>Serie</b-th>
+            <b-th>Prix</b-th>
+            <b-th>Auteur</b-th>
+            <b-th>Editeur</b-th>
+            <b-th>Supprimer</b-th>
+          </b-tr>
+        </b-thead>
+        <b-tbody>
+          <b-tr v-for="c of comics" :key="c.bd_id">
+            <b-td>{{c.bd_titre}}</b-td>
+            <b-td>{{c.bd_serie}}</b-td>
+            <b-td>{{c.bd_prix}} &euro;</b-td>
+            <b-td>{{c.auteur_nom}}</b-td>
+            <b-td>{{c.editeur_nom}}</b-td>
+            <td>
+              <b-button @click="deleteComics(c.bd_id)" variant="outline-danger">
+                Supprimer
+                <b-icon icon="trash" aria-hidden="true"></b-icon>
+              </b-button>
+            </td>
+          </b-tr>
+        </b-tbody>
+      </b-table-simple>
+      <b-pagination :total-rows="totalRows" v-model="currentPage" :per-page="perPage" />
+    </b-container>
+  </div>
+  <script>
+    new Vue({
+      el: "#content",
+      data() {
+        return {
+          status: "",
+          newTitle: "",
+          newSerie: "",
+          newPrice: "",
+          newISBN: "",
+          newAuthor: "",
+          newEditor: "",
+          authors: [],
+          editors: [],
+          data: [],
+          currentPage: 1,
+          perPage: 10,
+        };
+      },
+      computed: {
+        comics() {
+          const items = this.data;
+          // Return just page of items needed
+          return items.slice(
+            (this.currentPage - 1) * this.perPage,
+            this.currentPage * this.perPage
+          )
+        },
+        totalRows() {
+          return this.data.length
+        }
+      },
+      created() {
+        this.loadComics();
+        this.loadAuthors();
+        this.loadEditors();
+      },
+      methods: {
+        loadComics: function () {
+          var self = this;
+          $.getJSON(
+            "http://amandinequellec.fr:8080/listcomics",
+            function (data) {
+              self.data = data;
+            }
+          );
+        },
+        loadAuthors: function () {
+          var self = this;
+          $.getJSON(
+            "http://amandinequellec.fr:8080/listauthors",
+            function (data) {
+              self.authors = data;
+            }
+          );
+        },
+        loadEditors: function () {
+          var self = this;
+          $.getJSON(
+            "http://amandinequellec.fr:8080/listeditors",
+            function (data) {
+              self.editors = data;
+            }
+          );
+        },
+        deleteComics: function (num) {
+          var self = this;
+          $.getJSON(
+            "http://amandinequellec.fr:8080/adminComics/delete/" + num,
+            function (data) {
+              self.status = data;
+            }
+          );
+          $("#status").html("<div class='alert alert-success' role='alert'>La BD a bien été supprimée</div>");
+          this.loadComics(); // OR location.reload()
+        },
+        addComics: function () {
+          var self = this;
+          $.getJSON(
+            "http://amandinequellec.fr:8080/adminComics/add/" +
+            this.newTitle +
+            "/" +
+            this.newSerie +
+            "/" +
+            this.newPrice +
+            "/" +
+            this.newISBN +
+            "/" +
+            this.newAuthor +
+            "/" +
+            this.newEditor,
+            function (data) {
+              self.status = data;
+            }
+          );
+          this.newTitle = "";
+          this.newSerie = "";
+          this.newPrice = "";
+          this.newISBN = "";
+          this.newAuthor = "";
+          this.newEditor = "";
+          $("#status").html("<div class='alert alert-success' role='alert'>La BD a bien été ajoutée</div>");
+          this.loadComics(); // OR location.reload()
+        },
+      }
+    });
+  </script>
+</body>
+
+</html>

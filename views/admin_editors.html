@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <link href="/assets/styles.css" rel="stylesheet" type="text/css" />
+  <script src="/assets/jquery-3.6.0.min.js"></script>
+  <script src="/assets/vue3.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+  <!-- Load required Bootstrap and BootstrapVue CSS -->
+  <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
+  <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.css" />
+
+  <!-- Load polyfills to support older browsers -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es2015%2CIntersectionObserver"
+    crossorigin="anonymous"></script>
+
+  <!-- Load Vue followed by BootstrapVue -->
+  <script src="https://unpkg.com/vue@latest/dist/vue.min.js"></script>
+  <script src="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.js"></script>
+
+  <!-- Load the following for BootstrapVueIcons support -->
+  <script src="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue-icons.min.js"></script>
+</head>
+
+<body>
+  <div id="content">
+    <b-container class="m-auto mt-2">
+      <div>
+        <b-navbar class="d-flex justify-content-between">
+          <b-navbar-brand>Dutaf Node</b-navbar-brand>
+          <b-nav>
+            <b-nav-item href="/">Back</b-nav-item>
+            <b-nav-item href="/admin/comics">Admin. BD</b-nav-item>
+            <b-nav-item href="/admin/authors">Admin. Auteurs</b-nav-item>
+            <b-nav-item href="/admin/editors" active>Admin. Editeurs</b-nav-item>
+          </b-nav>
+        </b-navbar>
+      </div>
+      <h2>Administration Editeurs</h2>
+      <div id="status"></div>
+      <b-row>
+        <b-col class="d-flex my-1 gap-2" cols="3">
+          <label class="my-auto" for="nom">Nom:</label>
+          <b-form-input type="text" name="nom" id="nom" v-model="newNom" />
+        </b-col>
+      </b-row>
+      <b-row>
+        <b-col class="d-flex my-1 gap-2" cols="3">
+          <label class="my-auto" for="pays">Pays:</label>
+          <b-form-input type="text" name="pays" id="pays" v-model="newPays" />
+        </b-col>
+      </b-row>
+      <b-row>
+        <b-col class="d-flex my-1 gap-2" cols="3">
+          <label class="my-auto" for="tel">Téléphone:</label>
+          <b-form-input type="number" name="tel" id="tel" v-model="newTel" />
+        </b-col>
+      </b-row>
+      <b-row>
+        <b-col class="d-flex my-1 gap-2" cols="3">
+          <b-button class="my-1" variant="primary" @click="addEditors">Ajouter un Editeur !</b-button>
+        </b-col>
+      </b-row>
+      <b-table-simple responsive>
+        <b-thead>
+          <b-tr>
+            <b-th>Nom</b-th>
+            <b-th>Pays</b-th>
+            <b-th>Téléphone</b-th>
+            <b-th>Supprimer</b-th>
+          </b-tr>
+        </b-thead>
+        <b-tbody>
+          <b-tr v-for="e in editors" :key="e.editeur_id">
+            <b-td>{{e.editeur_nom}}</b-td>
+            <b-td>{{e.editeur_pays}}</b-td>
+            <b-td>{{e.editeur_tel}}</b-td>
+            <td>
+              <b-button @click="deleteEditors(e.editeur_id)" variant="outline-danger">
+                Supprimer
+                <b-icon icon="trash" aria-hidden="true"></b-icon>
+              </b-button>
+            </td>
+          </b-tr>
+        </b-tbody>
+      </b-table-simple>
+      <b-pagination :total-rows="totalRows" v-model="currentPage" :per-page="perPage" />
+    </b-container>
+  </div>
+  <script>
+    new Vue({
+      el: "#content",
+      data() {
+        return {
+          status: "",
+          newNom: "",
+          newPays: "",
+          newTel: "",
+          data: [],
+          currentPage: 1,
+          perPage: 10,
+        };
+      },
+      computed: {
+        editors() {
+          const items = this.data;
+          // Return just page of items needed
+          return items.slice(
+            (this.currentPage - 1) * this.perPage,
+            this.currentPage * this.perPage
+          )
+        },
+        totalRows() {
+          return this.data.length
+        }
+      },
+      created() {
+        this.loadEditors();
+      },
+      methods: {
+        loadEditors: function () {
+          var self = this;
+          $.getJSON(
+            "http://amandinequellec.fr:8080/listeditors",
+            function (data) {
+              self.data = data;
+            }
+          );
+        },
+        deleteEditors: function (num) {
+          var self = this;
+          $.getJSON(
+            "http://amandinequellec.fr:8080/adminEditors/delete/" + num,
+            function (data) {
+              self.status = data;
+            }
+          );
+          $("#status").html("<div class='alert alert-success' role='alert'>L'éditeur a bien été supprimé</div>");
+          this.loadEditors(); // OR location.reload()
+        },
+        addEditors: function () {
+          var self = this;
+          $.getJSON(
+            "http://amandinequellec.fr:8080/adminEditors/add/" +
+            this.newNom +
+            "/" +
+            this.newPays +
+            "/" +
+            this.newTel,
+            function (data) {
+              self.status = data;
+            }
+          );
+          this.newNom = "";
+          this.newPays = "";
+          this.newTel = "";
+          $("#status").html("<div class='alert alert-success' role='alert'>L'éditeur a bien été ajouté</div>");
+          this.loadEditors(); // OR location.reload()
+        },
+      },
+    });
+  </script>
+</body>
+
+</html>

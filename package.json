@@ -1,0 +1,22 @@
+{
+  "name": "seance10",
+  "version": "1.0.0",
+  "description": "Templates with node.js",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "JL",
+  "license": "ISC",
+  "keywords": [
+    "Node.js",
+    "templates."
+  ],
+  "dependencies": {
+    "express": "^4.17.1",
+    "mysql": "^2.18.1"
+  },
+  "devDependencies": {
+    "@nuxtjs/vuetify": "^1.12.3"
+  }
+}

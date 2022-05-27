@@ -1,0 +1,53 @@
+/* body {
+	font-family: sans-serif;
+	padding: 0;
+	margin: 0;
+}
+h1 {
+	width: 90%;
+	margin: 0 auto;
+	text-align: center;
+	background-color: #ccc;
+	color: white;
+	border: 1px solid black;
+	border-radius: 0 8px 0 8px;
+}
+p {
+	width: 96%;
+	margin: 5% 5%;
+}
+header {
+	height: 64px;
+	width: 100%;
+	background-color: lavender;
+	color: #bf0303;
+	text-align: center;
+}
+header nav {
+	padding-top: 2%;
+}
+#content {
+	margin-top: 32px;
+}
+#myComics {
+	margin: 0 auto;
+	margin-top: 24px;
+	text-align: center;
+	border: 1px solid #444;
+	width: 96%;
+}
+#myComics th {
+	background-color: #444;
+	color: white;
+	border: 1px solid #444;
+}
+#myComics td {
+	background-color: white;
+	color: #444;
+	border: 1px solid #444;
+}
+
+.red {
+	color: red;
+	text-shadow: 1px 1px orange;
+} */

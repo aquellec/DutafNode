@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <link href="/assets/styles.css" rel="stylesheet" type="text/css" />
+  <script src="/assets/jquery-3.6.0.min.js"></script>
+  <script src="/assets/vue3.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+  <!-- Load required Bootstrap and BootstrapVue CSS -->
+  <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
+  <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.css" />
+
+  <!-- Load polyfills to support older browsers -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es2015%2CIntersectionObserver"
+    crossorigin="anonymous"></script>
+
+  <!-- Load Vue followed by BootstrapVue -->
+  <script src="https://unpkg.com/vue@latest/dist/vue.min.js"></script>
+  <script src="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.js"></script>
+
+  <!-- Load the following for BootstrapVueIcons support -->
+  <script src="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue-icons.min.js"></script>
+</head>
+
+<body>
+  <div id="content">
+    <b-container class="m-auto mt-2">
+      <div>
+        <b-navbar class="d-flex justify-content-between">
+          <b-navbar-brand>Dutaf Node</b-navbar-brand>
+          <b-nav>
+            <b-nav-item href="/">Back</b-nav-item>
+            <b-nav-item href="/admin/comics">Admin. BD</b-nav-item>
+            <b-nav-item href="/admin/authors" active>Admin. Auteurs</b-nav-item>
+            <b-nav-item href="/admin/editors">Admin. Editeurs</b-nav-item>
+          </b-nav>
+        </b-navbar>
+      </div>
+      <h2>Administration Auteurs</h2>
+      <div id="status"></div>
+      <b-row>
+        <b-col class="d-flex my-1 gap-2" cols="3">
+          <label class="my-auto" for="nom">Nom:</label>
+          <b-form-input type="text" name="nom" id="nom" v-model="newNom" />
+        </b-col>
+      </b-row>
+      <b-row>
+        <b-col class="d-flex my-1 gap-2" cols="3">
+          <label class="my-auto" for="prenom">Prénom:</label>
+          <b-form-input type="text" name="prenom" id="prenom" v-model="newPrenom" />
+        </b-col>
+      </b-row>
+      <b-row>
+        <b-col class="d-flex my-1 gap-2" cols="3">
+          <label class="my-auto" for="nat">Nationalité:</label>
+          <b-form-input type="text" name="nat" id="nat" v-model="newNat" />
+        </b-col>
+      </b-row>
+      <b-row>
+        <b-col class="d-flex my-1 gap-2" cols="3">
+          <label class="my-auto" for="age">Age:</label>
+          <b-form-input type="number" name="age" id="age" v-model="newAge" />
+        </b-col>
+      </b-row>
+      <b-row>
+        <b-col class="d-flex my-1 gap-2" cols="3">
+          <b-button class="my-1" variant="primary" @click="addAuthors">Ajouter un auteur !</b-button>
+        </b-col>
+      </b-row>
+      <b-table-simple responsive>
+        <b-thead>
+          <b-tr>
+            <b-th>Nom</b-th>
+            <b-th>Prénom</b-th>
+            <b-th>Nationalité</b-th>
+            <b-th>Age</b-th>
+            <b-th>Supprimer</b-th>
+          </b-tr>
+        </b-thead>
+        <b-tbody>
+          <b-tr v-for="a in authors" :key="a.auteur_nom">
+            <b-td>{{a.auteur_nom}}</b-td>
+            <b-td>{{a.auteur_prenom}}</b-td>
+            <b-td>{{a.auteur_nat}}</b-td>
+            <b-td>{{a.auteur_age}}</b-td>
+            <td>
+              <b-button @click="deleteAuthors(a.auteur_id)" variant="outline-danger">
+                Supprimer
+                <b-icon icon="trash" aria-hidden="true"></b-icon>
+              </b-button>
+            </td>
+          </b-tr>
+        </b-tbody>
+      </b-table-simple>
+      <b-pagination :total-rows="totalRows" v-model="currentPage" :per-page="perPage" />
+    </b-container>
+  </div>
+  <script>
+    new Vue({
+      el: "#content",
+      data() {
+        return {
+          status: "",
+          newNom: "",
+          newPrenom: "",
+          newNat: "",
+          newAge: "",
+          data: [],
+          currentPage: 1,
+          perPage: 10,
+        };
+      },
+      computed: {
+        authors() {
+          const items = this.data;
+          // Return just page of items needed
+          return items.slice(
+            (this.currentPage - 1) * this.perPage,
+            this.currentPage * this.perPage
+          )
+        },
+        totalRows() {
+          return this.data.length
+        }
+      },
+      created() {
+        this.loadAuthors();
+      },
+      methods: {
+        loadAuthors: function () {
+          var self = this;
+          $.getJSON(
+            "http://amandinequellec.fr:8080/listauthors",
+            function (data) {
+              self.data = data;
+            }
+          );
+        },
+        deleteAuthors: function (num) {
+          var self = this;
+          $.getJSON(
+            "http://amandinequellec.fr:8080/adminAuthors/delete/" + num,
+            function (data) {
+              self.status = data;
+            }
+          );
+          $("#status").html("<div class='alert alert-success' role='alert'>L'auteur a bien été supprimé</div>");
+          this.loadAuthors(); // OR location.reload()
+        },
+        addAuthors: function () {
+          var self = this;
+          $.getJSON(
+            "http://amandinequellec.fr:8080/adminAuthors/add/" +
+            this.newNom +
+            "/" +
+            this.newPrenom +
+            "/" +
+            this.newNat +
+            "/" +
+            this.newAge,
+            function (data) {
+              self.status = data;
+            }
+          );
+          this.newNom = "";
+          this.newPrenom = "";
+          this.newNat = "";
+          this.newAge = "";
+          $("#status").html("<div class='alert alert-success' role='alert'>L'auteur a bien été ajouté</div>");
+          this.loadAuthors(); // OR location.reload()
+        },
+      }
+    });
+  </script>
+</body>
+
+</html>

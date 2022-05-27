@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <link href="/assets/styles.css" rel="stylesheet" type="text/css" />
+  <script src="/assets/jquery-3.6.0.min.js"></script>
+  <script src="/assets/vue3.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+  <!-- Load required Bootstrap and BootstrapVue CSS -->
+  <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
+  <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.css" />
+
+  <!-- Load polyfills to support older browsers -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es2015%2CIntersectionObserver"
+    crossorigin="anonymous"></script>
+
+  <!-- Load Vue followed by BootstrapVue -->
+  <script src="https://unpkg.com/vue@latest/dist/vue.min.js"></script>
+  <script src="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.js"></script>
+
+  <!-- Load the following for BootstrapVueIcons support -->
+  <script src="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue-icons.min.js"></script>
+</head>
+
+<body>
+  <div id="content">
+    <b-container class="m-auto mt-2">
+      <div>
+        <b-navbar class="d-flex justify-content-between">
+          <b-navbar-brand>Dutaf Node</b-navbar-brand>
+          <b-nav>
+            <b-nav-item href="/">Accueil</b-nav-item>
+            <b-nav-item href="/comics" active>BD</b-nav-item>
+            <b-nav-item href="/search">Rechercher</b-nav-item>
+            <b-nav-item href="/admin">Admin.</b-nav-item>
+          </b-nav>
+        </b-navbar>
+      </div>
+      <h2>Rechercher une bd :</h2>
+      <p>Rechercher dans les bandes dessinées :</p>
+      <b-row>
+        <b-col class="d-flex" cols="3">
+          <b-form-input type="text" name="searchText" v-model="searchText"></b-form-input>
+          <b-button class="mx-3" variant="primary" @click="searchComics">Rechercher</b-button>
+        </b-col>
+      </b-row>
+
+
+      <b-table-simple responsive>
+        <b-thead>
+          <b-tr>
+            <b-th>Titre</b-th>
+            <b-th>Serie</b-th>
+            <b-th>Prix</b-th>
+            <b-th>Auteur</b-th>
+            <b-th>Editeur</b-th>
+          </b-tr>
+        </b-thead>
+        <b-tbody>
+          <b-tr v-for="c of comicsWithText" :key="c.bd_id">
+            <b-td>{{c.bd_titre}}</b-td>
+            <b-td>{{c.bd_serie}}</b-td>
+            <b-td>{{c.bd_prix}} &euro;</b-td>
+            <b-td>{{c.auteur_nom}}</b-td>
+            <b-td>{{c.editeur_nom}}</b-td>
+          </b-tr>
+        </b-tbody>
+      </b-table-simple>
+      <b-pagination :total-rows="totalRows" v-model="currentPage" :per-page="perPage" />
+    </b-container>
+  </div>
+  <script>
+    new Vue({
+      el: "#content",
+      data() {
+        return {
+          searchText: "",
+          data: [],
+          currentPage: 1,
+          perPage: 10,
+        };
+      },
+      computed: {
+        comicsWithText() {
+          const items = this.data;
+          // Return just page of items needed
+          return items.slice(
+            (this.currentPage - 1) * this.perPage,
+            this.currentPage * this.perPage
+          )
+        },
+        totalRows() {
+          return this.data.length
+        }
+      },
+      methods: {
+        searchComics: function () {
+          var self = this;
+          $.getJSON(
+            "http://amandinequellec.fr:8080/searchcomics/" + this.searchText,
+            function (data) {
+              self.data = data;
+            }
+          );
+        },
+      },
+    });
+  </script>
+</body>
+
+</html>
